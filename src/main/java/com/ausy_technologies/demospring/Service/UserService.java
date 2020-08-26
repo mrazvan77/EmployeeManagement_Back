@@ -21,30 +21,21 @@ public class UserService {
     @Autowired
     private RoleRepository roleRepository;
 
-
     public Role saveRole(Role role) {
-
-
         return this.roleRepository.save(role);
     }
 
-
     public User saveUser(User user) {
-
-
         return this.userRepository.save(user);
     }
 
-    public User saveUser2(User user ,int idRole)
-    {
+    public User saveUser2(User user ,int idRole) {
+       Role role = this.roleRepository.findById(idRole).get();
+       List<Role> roleList = new ArrayList<>();
 
-       Role role= this.roleRepository.findById(idRole).get();
-
-       List<Role> roleList =new ArrayList<>();
        roleList.add(role);
 
-       if(role!=null) {
-
+       if(role != null) {
            user.setRoleList(roleList);
            return this.userRepository.save(user);
        }
@@ -52,24 +43,15 @@ public class UserService {
        {
            throw new RuntimeException("Role not found");
        }
-
-
     }
 
-
-    public User saveUser3(  User user ,List<Role> roleList)
-    {
+    public User saveUser3(  User user ,List<Role> roleList) {
         user.setRoleList(roleList);
         return this.userRepository.save(user);
-
     }
 
-
-
-    public Role findRoleById(int id)
-    {
+    public Role findRoleById(int id) {
         return this.roleRepository.findById(id).get();
-
     }
 
     public List<Role> findAllRoles()
@@ -77,19 +59,28 @@ public class UserService {
         return this.roleRepository.findAll();
     }
 
-
     public List<User> findAllUsers()
     {
         return this.userRepository.findAll();
     }
-
 
     public void deleteUserById(int id)
     {
          this.userRepository.deleteById(id);
     }
 
+    public User updateUser(int id, String name) {
+        User user = this.userRepository.getOne(id);
 
+        user.setFirstName(name);
+        return this.userRepository.save(user);
+    }
 
+    public void updateEmail(int id, String email) {
+        this.userRepository.updateEmail(id, email);
+    }
 
+    public void updatePassword(String firstName, String password) {
+        this.userRepository.updatePassword(firstName, password);
+    }
 }
