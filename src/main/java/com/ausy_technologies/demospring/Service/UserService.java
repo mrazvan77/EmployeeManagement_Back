@@ -1,5 +1,6 @@
 package com.ausy_technologies.demospring.Service;
 
+import com.ausy_technologies.demospring.ErrorHandling.ErrorResponse;
 import com.ausy_technologies.demospring.Model.DAO.Role;
 import com.ausy_technologies.demospring.Model.DAO.User;
 import com.ausy_technologies.demospring.Repository.RoleRepository;
@@ -41,7 +42,7 @@ public class UserService {
        }
        else
        {
-           throw new RuntimeException("Role not found");
+           throw new ErrorResponse("Role not found!");
        }
     }
 
@@ -51,7 +52,27 @@ public class UserService {
     }
 
     public Role findRoleById(int id) {
-        return this.roleRepository.findById(id).get();
+
+        Role role = this.roleRepository.findById(id).get();
+
+        if(role != null) {
+            return role;
+        }
+        else {
+            throw new ErrorResponse("Role not found");
+        }
+    }
+
+    public User findUserById(int id) {
+
+        User user = this.userRepository.findById(id);
+
+        if(user != null) {
+            return user;
+        }
+        else {
+            throw new ErrorResponse("User not found");
+        }
     }
 
     public List<Role> findAllRoles()
@@ -69,18 +90,49 @@ public class UserService {
          this.userRepository.deleteById(id);
     }
 
+    public void deleteRoleById(int id) {
+        this.roleRepository.deleteById(id);
+    }
+
     public User updateUser(int id, String name) {
         User user = this.userRepository.getOne(id);
 
+        if(user != null) {
         user.setFirstName(name);
         return this.userRepository.save(user);
+        }
+        else {
+            throw new ErrorResponse("User not found!");
+        }
+
     }
 
-    public void updateEmail(int id, String email) {
-        this.userRepository.updateEmail(id, email);
+    public User updateEmail(int id, String email) {
+        return this.userRepository.updateEmail(id, email);
     }
 
-    public void updatePassword(String firstName, String password) {
-        this.userRepository.updatePassword(firstName, password);
+    public User updatePassword(String firstName, String password) {
+        return this.userRepository.updatePassword(firstName, password);
+    }
+
+    public User updateRole(List<Integer> ids) {
+        Role role = this.roleRepository.findById(ids.get(1)).get();
+        User user = this.userRepository.findById(ids.get(0)).get();
+        List<Role> roleList = user.getRoleList();
+
+        if(role != null) {
+            if(user != null) {
+                roleList.add(role);
+                user.setRoleList(roleList);
+                return this.userRepository.save(user);
+            }
+            else {
+                throw new ErrorResponse("User not found!");
+            }
+        }
+        else {
+            throw new ErrorResponse("Role not found");
+        }
+
     }
 }
