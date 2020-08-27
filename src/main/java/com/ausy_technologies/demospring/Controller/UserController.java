@@ -3,6 +3,7 @@ package com.ausy_technologies.demospring.Controller;
 import com.ausy_technologies.demospring.ErrorHandling.ErrorResponse;
 import com.ausy_technologies.demospring.Model.DAO.Role;
 import com.ausy_technologies.demospring.Model.DAO.User;
+import com.ausy_technologies.demospring.Model.DTO.UserDto;
 import com.ausy_technologies.demospring.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -170,5 +171,33 @@ public class UserController {
         }
 
         return ResponseEntity.status(HttpStatus.OK).headers(httpHeaders).body(user);
+    }
+
+    @GetMapping("/getUserDto/{id}")
+    public ResponseEntity<UserDto> getUserDto(@PathVariable int id) {
+        User user = null;
+        UserDto userDto = null;
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Responded", "updateUserRole");
+
+        try {
+            user = this.userService.findUserById(id);
+            userDto = this.userService.convertToDto(user);
+        }catch (ErrorResponse e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(httpHeaders).body(userDto);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).headers(httpHeaders).body(userDto);
+    }
+
+    @GetMapping("/allUserDtos")
+    public ResponseEntity<List<UserDto>> findAllUserDtos() {
+        List<User> userList = this.userService.findAllUsers();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        List<UserDto> userDtos = this.userService.convertListToDto(userList);
+
+        httpHeaders.add("Responded", "findAllUsers");
+        return ResponseEntity.status(HttpStatus.OK).headers(httpHeaders).body(userDtos);
     }
 }
