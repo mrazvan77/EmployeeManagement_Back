@@ -3,8 +3,10 @@ package com.ausy_technologies.demospring.Service;
 import com.ausy_technologies.demospring.ErrorHandling.ErrorResponse;
 import com.ausy_technologies.demospring.Model.DAO.Role;
 import com.ausy_technologies.demospring.Model.DAO.User;
+import com.ausy_technologies.demospring.Model.DTO.UserDto;
 import com.ausy_technologies.demospring.Repository.RoleRepository;
 import com.ausy_technologies.demospring.Repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -134,5 +136,29 @@ public class UserService {
             throw new ErrorResponse("Role not found");
         }
 
+    }
+
+    public UserDto convertToDto(User user) {
+        ModelMapper modelMapper = new ModelMapper();
+        UserDto userDto = modelMapper.map(user, UserDto.class);
+        List<String> roleList = new ArrayList<>();
+
+        for(Role r : user.getRoleList())
+            roleList.add(r.getName());
+
+        userDto.setRoleList(roleList);
+        return userDto;
+    }
+
+    public List<UserDto> convertListToDto(List<User> userList) {
+        UserDto userDto;
+        List<UserDto> userDtos = new ArrayList<>();
+
+        for (User u : userList) {
+            userDto = convertToDto(u);
+            userDtos.add(userDto);
+        }
+
+        return userDtos;
     }
 }
