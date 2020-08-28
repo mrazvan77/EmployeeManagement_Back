@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api/users")
@@ -19,6 +21,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    boolean isDebug = java.lang.management.ManagementFactory.
+            getRuntimeMXBean().
+            getInputArguments().toString().indexOf("jdwp") >= 0;
 
     @PostMapping("/addRole")
     public ResponseEntity<Role> saveRole(@RequestBody Role role) {
@@ -41,13 +46,17 @@ public class UserController {
     @PostMapping("/addUser2/{idRole}")
     public ResponseEntity<User> saveUser2(@RequestBody User user, @PathVariable int idRole) {
         User userAdded = null;
+        Logger logger = Logger.getLogger(UserController.class.getName());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Responded", "addUserByRole");
 
         try {
             userAdded = this.userService.saveUser2(user, idRole);
         }catch (ErrorResponse e) {
-            e.printStackTrace();
+            if(isDebug)
+                e.printStackTrace();
+            else
+                logger.log(Level.SEVERE, "AddUser2 can't find role id");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(httpHeaders).body(userAdded);
         }
 
@@ -66,13 +75,17 @@ public class UserController {
     @GetMapping("/findRoleBy/{id}")
     public ResponseEntity<Role> findRoleById(@PathVariable int id) {
         Role role = null;
+        Logger logger = Logger.getLogger(UserController.class.getName());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Responded", "findRoleById");
 
         try {
             role = this.userService.findRoleById(id);
         } catch (ErrorResponse e) {
-            e.printStackTrace();
+            if(isDebug)
+                e.printStackTrace();
+            else
+                logger.log(Level.SEVERE, "FindRoleById can't find given ID");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(httpHeaders).body(role);
         }
 
@@ -82,13 +95,17 @@ public class UserController {
     @GetMapping("/findUserBy/{id}")
     public ResponseEntity<User> findUserById(@PathVariable int id) {
         User user = null;
+        Logger logger = Logger.getLogger(UserController.class.getName());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Responded", "findUserById");
 
         try {
             user = this.userService.findUserById(id);
         } catch (ErrorResponse e) {
-            e.printStackTrace();
+            if(isDebug)
+                e.printStackTrace();
+            else
+                logger.log(Level.SEVERE, "FindUserById can't find given ID");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(httpHeaders).body(user);
         }
 
@@ -126,13 +143,17 @@ public class UserController {
     @PutMapping("/updateUser/{id}")
     public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody String name) {
         User user = null;
+        Logger logger = Logger.getLogger(UserController.class.getName());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Responded", "updateUserName");
 
         try {
             user = this.userService.updateUser(id, name);
         }catch (ErrorResponse e) {
-            e.printStackTrace();
+            if(isDebug)
+                e.printStackTrace();
+            else
+                logger.log(Level.SEVERE, "UpdateUser can't find given ID");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(httpHeaders).body(user);
         }
 
@@ -160,13 +181,17 @@ public class UserController {
     @PutMapping("/updateRoles/{idList}")
     public ResponseEntity<User> updateRoles(@PathVariable List<Integer> idList) {
         User user = null;
+        Logger logger = Logger.getLogger(UserController.class.getName());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Responded", "updateUserRole");
 
         try {
             user = this.userService.updateRole(idList);
         }catch (ErrorResponse e) {
-            e.printStackTrace();
+            if(isDebug)
+                e.printStackTrace();
+            else
+                logger.log(Level.SEVERE, "UpdateRoles can't find given IDs");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(httpHeaders).body(user);
         }
 
@@ -177,6 +202,7 @@ public class UserController {
     public ResponseEntity<UserDto> getUserDto(@PathVariable int id) {
         User user = null;
         UserDto userDto = null;
+        Logger logger = Logger.getLogger(UserController.class.getName());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Responded", "updateUserRole");
 
@@ -184,7 +210,10 @@ public class UserController {
             user = this.userService.findUserById(id);
             userDto = this.userService.convertToDto(user);
         }catch (ErrorResponse e) {
-            e.printStackTrace();
+            if(isDebug)
+                e.printStackTrace();
+            else
+                logger.log(Level.SEVERE, "GetUserDTO can't find given ID");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(httpHeaders).body(userDto);
         }
 
